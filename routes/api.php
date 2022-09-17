@@ -21,6 +21,16 @@ use App\Http\Controllers\Business\ProductController;
 Route::prefix('v1/')->group(function(){
     Route::get('users/get-all-user-type', [UserController::class, 'get_all_user_type']);
     Route::post('auth/get-otp', [AuthController::class, 'send_otp']);
+
+    Route::post('auth/mobile-number', [AuthController::class, 'mobile_number']);
+    Route::post('auth/mobile-number-verify', [AuthController::class, 'mobile_number_verify']);
+
+    Route::post('auth/aadhar-number', [AuthController::class, 'aadhar_number']);
+    Route::post('auth/aadhar-verify', [AuthController::class, 'aadhar_verification']);
+
+    Route::post('auth/email-otp', [AuthController::class, 'email_otp']);
+    Route::post('auth/email-verify', [AuthController::class, 'email_otp_verification']);
+
     Route::post('auth/verify-otp', [AuthController::class, 'verify_otp']);
     Route::post('business/registration', [AuthController::class, 'business_registration']);
     // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -30,8 +40,8 @@ Route::prefix('v1/')->group(function(){
         Route::prefix('/business')->group(function(){
             Route::get('/get-categories', [CategoryController::class, 'get_all_categories']);
             Route::get('/get-subcategories', [CategoryController::class, 'get_all_subcategories']);     
-            Route::post('/aadhar-number', [AuthController::class, 'aadhar_number']);
-            Route::post('/aadhar-verify', [AuthController::class, 'aadhar_verification']);
+            // Route::post('/aadhar-number', [AuthController::class, 'aadhar_number']);
+            // Route::post('/aadhar-verify', [AuthController::class, 'aadhar_verification']);
             Route::post('/account-details', [AuthController::class, 'add_business_bank_details']);
             Route::post('/add-product', [ProductController::class, 'add_product']);
             Route::post('/update-product', [ProductController::class, 'update_product']);
