@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Business\BankDetailsController;
 use App\Http\Controllers\Business\ProductController;
-
+use Illuminate\Support\Facades\View;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,9 +18,13 @@ use App\Http\Controllers\Business\ProductController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::prefix('v1/')->group(function(){
     Route::get('users/get-all-user-type', [UserController::class, 'get_all_user_type']);
     Route::post('auth/get-otp', [AuthController::class, 'send_otp']);
+
+
+    Route::post('auth/login', [AuthController::class, 'login']);
 
     Route::post('auth/mobile-number', [AuthController::class, 'mobile_number']);
     Route::post('auth/mobile-number-verify', [AuthController::class, 'mobile_number_verify']);

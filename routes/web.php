@@ -16,3 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/viewmail', function () {
+    return view('mail', ['otp' => '2345','name'=>'qwe']);
+});

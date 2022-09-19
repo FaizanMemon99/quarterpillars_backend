@@ -17,49 +17,6 @@ class AuthController extends CommonUtility
 {
     //
     private $Mahareferid = '';
-
-    public function login(Request $request){
-        $rules = [
-            'data'=>'required',
-            'password'=>'required'
-        ];
-        $validation = Validator::make($request->all(), $rules);
-
-        if(is_numeric($request->get('data'))){
-            $mobile_number=$request->data;
-            $user=user::where('mobile_number',$mobile_number)->first();
-            if(Hash::check($request->password, $user->password)){
-               // $token = $user->createToken( env( 'ACCESS_TOKEN' ))->accessToken;
-                $token="12";
-                return $this->get_response(false, 'mobile login successfully', ['login_success'=>true, 'token'=>$token, 'user'=>$user], 200);
-            }else{
-                return $this->get_response(false, 'enter valid number and password', null, 400);
-            }
-          } 
-          elseif (filter_var($request->get('data'), FILTER_VALIDATE_EMAIL)) {
-            $email=$request->data;
-            $user=user::where('email',$email)->first();
-            if(Hash::check($request->password, $user->password)){
-                $token="12";
-              //  $token = $user->createToken( env( 'ACCESS_TOKEN' ) )->accessToken;
-                return $this->get_response(false, 'email login successfully', ['login_success'=>true, 'token'=>$token, 'user'=>$user], 200);
-            }else{
-                return $this->get_response(false, 'enter valid email and password', null, 400);
-            }          
-          }else{
-            $username=$request->data;
-            $user=user::where('name',$username)->first();
-            if(Hash::check($request->password, $user->password)){
-                $token="12";
-              //  $token = $user->createToken( env( 'ACCESS_TOKEN'))->accessToken;
-                return $this->get_response(false, 'username login successfully', ['login_success'=>true, 'token'=>$token, 'user'=>$user], 200);
-            }else{
-                return $this->get_response(false, 'enter valid username and password', null, 400);
-            }            
-        }
-         
-    }
-
     public function send_otp(Request $request){
         $rules = [
             'mobile_number'=>'required'
@@ -78,7 +35,6 @@ class AuthController extends CommonUtility
             return $this->get_response(true, 'Otp not sent', null, 200);
         }
     }
-
     public function verify_otp(Request $request){
         $rules = [
             'mobile_number'=>'required',
@@ -125,7 +81,6 @@ class AuthController extends CommonUtility
             return $this->get_response(true, 'Otp not sent', null, 200);
         }
     }
-
     public function mobile_number_verify(Request $request){
         $rules = [
             'mobile_number'=>'required',
@@ -138,13 +93,10 @@ class AuthController extends CommonUtility
         else{
             if(Otp::where(['mobile_number'=>$request->mobile_number, 'otp'=>$request->otp])->first()){
                 $user = User::where(['mobile_number'=>$request->mobile_number])->first();
-                $busnisse_details= BusinessRegistration::where(['owner_phone'=>$request->mobile_number])->first();
-                $busnisse_details->is_phone_no_verified=true;
-                $busnisse_details->save();
                 if($user){
                   //  $token = $user->createToken( env( 'ACCESS_TOKEN' ) )->accessToken;
                     Otp::where(['mobile_number'=>$request->mobile_number])->delete();
-                    return $this->get_response(false, 'User Found', [ 'userExist'=>true, 'user'=>$user,'busnisse_details'=>$busnisse_details], 200 );
+                    return $this->get_response(false, 'User Found', [ 'userExist'=>true, 'user'=>$user], 200 );
                 }
                 Otp::where(['mobile_number'=>$request->mobile_number])->delete();
                 return $this->get_response(false, 'User not Found', ['token'=>'', 'userExist'=>false], 200);
@@ -154,8 +106,6 @@ class AuthController extends CommonUtility
             }
         }
     }
-
-
     public function aadhar_number(Request $request){
         $rules = [
             'aadhaar_number'=>'required'
@@ -185,7 +135,6 @@ class AuthController extends CommonUtility
             return $this->get_response(true, 'Otp not sent', ['otp_send'=>false], 200);
         }
     }
-
     public function aadhar_verification(Request $request){
         $rules = [
             'otp'=>'required',
@@ -220,6 +169,7 @@ class AuthController extends CommonUtility
     }
 
     public function email_otp(Request $request){
+        
         $rules = [
             'email'=>'required',
         ];
@@ -227,56 +177,30 @@ class AuthController extends CommonUtility
         if($validation->fails()){		
             return $this->get_response(true, $validation->errors()->first(), null, 400);
         }else{
-            $otp = mt_rand(1000, 9999);
-            $sms_content = 'Your OTP is '.$otp;
-            $otps = new Otp;
-            $otps->email=$request->email;
-            $otps->otp_type='email-verification';
-            $otps->otp=$otp;
-            if($otps->save()){
-                $data = array('otp'=>$otp,'email'=>$request->email);
-                Mail::send('mail', $data, function($message) use ($data) {
-                    $message->to($data['email'])->subject
-                    ('Verify your email address');
-                    $message->from('noreply@quarterpillars.com','quarterpillars');
-                });
-                return $this->get_response(null, 'Otp sent successfully', ['otp'=>$otp], 200);
-            }
-            return $this->get_response(true, 'Otp not sent', null, 500);
-            
-          
+            $data = array('name'=>"Virat Gandhi",);
+   
+            Mail::send(['text'=>'mail'], $data, function($message) {
+               $message->to('fareedshaikh2692@gmail.com', 'Tutorials Point')->subject
+                  ('Laravel Basic Testing Mail');
+               $message->from('xyz@gmail.com','Virat Gandhi');
+            });
+            dd('done');
         }
     }
 
     public function email_otp_verification(Request $request){
+        dd($request->all());
         $rules = [
             'email'=>'required',
             'otp'=>'',
         ];
         $validation = Validator::make($request->all(), $rules);
-        if($validation->fails()){
+        if($validation->fails()){		
             return $this->get_response(true, $validation->errors()->first(), null, 400);
-        }
-        else{
-            if(Otp::where(['email'=>$request->email, 'otp'=>$request->otp])->first()){
-                $user = User::where('email',$request->email)->first();
-                $busnisse_details= BusinessRegistration::where(['owner_email'=>$request->email])->first();
-                $busnisse_details->is_owner_email_verified=true;
-                $busnisse_details->save();
-                if($user){
-                  //  $token = $user->createToken( env( 'ACCESS_TOKEN' ) )->accessToken;
-                    Otp::where(['email'=>$request->email])->delete();
-                    return $this->get_response(false, 'User Found', [ 'userExist'=>true, 'user'=>$user,'busnisse_details'=>$busnisse_details], 200 );
-                }
-                Otp::where(['email'=>$request->email])->delete();
-                return $this->get_response(false, 'User not Found', ['token'=>'', 'userExist'=>false], 200);
-            }
-            else{
-                return $this->get_response(true, 'OTP not matched', null, 200);
-            }
+        }else{
+
         }
     }
-
     public function business_registration(Request $request){
         $rules = [
             'catorige'=>'required',
@@ -311,7 +235,7 @@ class AuthController extends CommonUtility
             return $this->get_response(true, $validation->errors()->first(), null, 400);
         }
         else{
-            if(User::create(['role_id'=>4, 'name'=>$request->owner_name, 'role_id'=>4, 'email'=>$request->owner_email, 'mobile_number'=>$request->owner_phone, 'password'=>Hash::make($request->business_password)])){
+            if(User::create(['role_id'=>4, 'name'=>$request->owner_name, 'role_id'=>4, 'email'=>$request->owner_email, 'mobile_number'=>$request->owner_phone, 'password'=>Hash::make($request->password)])){
                 $user = User::where(['mobile_number'=>$request->owner_phone])->first();
                 $request->merge(['business_id'=>$user->id]);
                 BusinessRegistration::create($request->all());
@@ -349,7 +273,6 @@ class AuthController extends CommonUtility
             return $this->get_response(true, 'Failed to creaste user', null, 200);
         }
     }
-
     public function add_business_account_details(Request $request){
         $rules = [
             'gst_number'=>'required',
